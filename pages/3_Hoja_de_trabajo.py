@@ -221,6 +221,31 @@ if not st.session_state.aplicacion_cristianos.strip():
 if faltantes:
     st.info("Para completar el MVP, te faltan: " + ", ".join(faltantes))
 
+st.divider()
+st.markdown("## Instructor virtual (MVP sin IA)")
+
+feedback = []
+
+# Reglas simples de calidad
+if len(st.session_state.enfasis.strip()) < 15:
+    feedback.append("Tu **énfasis** parece muy corto. Intenta una oración completa que capture lo que el texto enfatiza.")
+if "jesus" in st.session_state.enfasis.lower() and st.session_state.estrategia == "— Selecciona —":
+    feedback.append("Mencionas a Cristo, pero no elegiste una **estrategia texto→evangelio**. Elige una y explica el puente.")
+if len(st.session_state.estructura.strip().splitlines()) < 2:
+    feedback.append("Tu **estructura** podría ser más visible. Prueba 2–4 líneas (movimientos del texto).")
+if st.session_state.estrategia != "— Selecciona —" and len(st.session_state.conexion_evangelio.strip()) < 25:
+    feedback.append("Tu **conexión al evangelio** parece breve. Explica el puente con 2–4 frases sin borrar el énfasis del pasaje.")
+if len(st.session_state.aplicacion_cristianos.strip()) < 20:
+    feedback.append("Tu **aplicación para cristianos** parece muy general. Escribe 2–4 aplicaciones concretas (acciones/actitudes).")
+
+if feedback:
+    st.warning("Sugerencias del instructor:")
+    for item in feedback:
+        st.write("• " + item)
+else:
+    st.success("¡Buen trabajo! Tu hoja tiene los mínimos del MVP. Ahora puedes exportar/guardar.")
+
+
 # Exportar JSON
 st.markdown("## Exportar (JSON)")
 hoja_export = {
