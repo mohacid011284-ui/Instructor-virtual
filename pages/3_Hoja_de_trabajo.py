@@ -100,6 +100,29 @@ st.write(st.session_state.estructura or "—")
 st.write("**Énfasis:**", st.session_state.enfasis or "—")
 
 st.divider()
+st.markdown("## Permanecer en la línea (control rápido)")
+
+# Heurística simple: palabras típicas de aplicación o salto prematuro
+banderas = ["hoy", "mi vida", "en mi", "en mi trabajo", "mi familia", "México", "iglesia local", "yo", "nosotros"]
+texto_a_revisar = f"{st.session_state.enfasis}\n{st.session_state.aplicacion_cristianos}\n{st.session_state.aplicacion_no_cristianos}".lower()
+
+alertas = [w for w in banderas if w in texto_a_revisar]
+
+c1, c2 = st.columns(2)
+with c1:
+    ok1 = st.checkbox("Mi énfasis describe lo que el texto enfatiza (no mi aplicación).", key="chk_linea_1")
+    ok2 = st.checkbox("Mi estructura viene del texto (conectores, repeticiones, movimientos).", key="chk_linea_2")
+with c2:
+    ok3 = st.checkbox("Mi conexión al evangelio no reemplaza el énfasis del texto.", key="chk_linea_3")
+    ok4 = st.checkbox("Mis aplicaciones salen del significado (no de ideas externas).", key="chk_linea_4")
+
+if alertas:
+    st.warning("⚠️ Detecté lenguaje típico de aplicación/salto temprano en tus respuestas: " + ", ".join(sorted(set(alertas))))
+    st.caption("Esto no siempre es malo, pero revisa que primero quede claro el significado del texto antes de aplicar.")
+
+linea_ok = all([ok1, ok2, ok3, ok4])
+st.write("Estado:", "✅ En línea" if linea_ok else "— Por revisar")
+
 
 # 1) Contexto
 st.markdown("## 1) Contexto e hilos contextuales")
