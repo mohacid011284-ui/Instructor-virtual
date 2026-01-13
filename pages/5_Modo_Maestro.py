@@ -276,15 +276,17 @@ mej_est, issues_est = mejorar_estructura(alumno["estructura"])
 mej_enf, issues_enf = mejorar_enfasis(alumno["enfasis"])
 mej_eva, issues_eva = mejorar_evangelio(alumno["estrategia"], alumno["conexion_evangelio"])
 mej_apc, mej_apn, issues_app = mejorar_aplicacion(alumno["aplicacion_cristianos"], alumno["aplicacion_no_cristianos"])
+mej_lin, issues_lin = mejorar_linea_melodica(alumno["linea_melodica"])
+mej_arg, issues_arg = mejorar_argumento_autor(alumno["argumento_autor"])
 
 issues = (
     [("Audiencia original", x) for x in issues_aud] +
     [("Estructura", x) for x in issues_est] +
     [("Énfasis", x) for x in issues_enf] +
     [("Evangelio", x) for x in issues_eva] +
-    [("Aplicación", x) for x in issues_app]
+    [("Aplicación", x) for x in issues_app] +
     [("Línea melódica", x) for x in issues_lin] +
-    [("Argumento del autor", x) for x in issues_arg]
+    [("Argumento del autor", x) for x in issues_arg] +
 )
 
 # =============================
@@ -319,9 +321,6 @@ comparacion("Audiencia original", alumno["audiencia_original"], mej_aud)
 comparacion("Estructura", alumno["estructura"], mej_est)
 comparacion("Énfasis", alumno["enfasis"], mej_enf)
 comparacion("Conexión al evangelio", alumno["conexion_evangelio"], mej_eva)
-
-mej_lin, issues_lin = mejorar_linea_melodica(alumno["linea_melodica"])
-mej_arg, issues_arg = mejorar_argumento_autor(alumno["argumento_autor"])
 
 st.markdown("## Aplicación")
 c1, c2 = st.columns(2)
