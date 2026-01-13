@@ -519,24 +519,43 @@ else:
     # -----------------------------
     # Validación simple + Guardar (demo)
     # -----------------------------
-    faltantes = []
-    if not st.session_state.linea_melodica.strip():
-        faltantes.append("Línea melódica")
-    if st.session_state.estrategia == "— Selecciona —":
-        faltantes.append("Estrategia (texto→evangelio)")
-    if not st.session_state.conexion_evangelio.strip():
-        faltantes.append("Conexión con el evangelio")
-    if not st.session_state.aplicacion_cristianos.strip():
-        faltantes.append("Aplicación (cristianos)")
+   import json
+from datetime import datetime
 
-    if faltantes:
-        st.info("Para completar el MVP, te faltan: " + ", ".join(faltantes))
+st.divider()
+st.markdown("## Exportar")
 
-    if st.button("Guardar hoja (demo)"):
-        st.toast("Guardado ✅ (demo)")
-        st.write("### Vista previa (demo)")
-        st.write("**Línea melódica:**", st.session_state.linea_melodica or "—")
-        st.write("**Estrategia:**", st.session_state.estrategia)
-        st.write("**Conexión evangelio:**", st.session_state.conexion_evangelio or "—")
-        st.write("**Aplicación cristianos:**", st.session_state.aplicacion_cristianos or "—")
-        st.write("**Aplicación no cristianos:**", st.session_state.aplicacion_no_cristianos or "—")
+# Armar un objeto con todo lo importante
+hoja = {
+    "timestamp": datetime.now().isoformat(timespec="seconds"),
+    "pasaje": st.session_state.pasaje,
+    "audiencia_original": st.session_state.audiencia_original,
+    "tipo_texto": st.session_state.tipo_texto,
+    "estructura": st.session_state.estructura,
+    "enfasis": st.session_state.enfasis,
+    "contexto": {
+        "literario": st.session_state.contexto_literario,
+        "cultural": st.session_state.contexto_cultural,
+        "biblico": st.session_state.contexto_biblico,
+        "circunstancial": st.session_state.contexto_circunstancial,
+    },
+    "linea_melodica": st.session_state.linea_melodica,
+    "argumento_autor": st.session_state.argumento_autor,
+    "texto_a_evangelio": {
+        "estrategia": st.session_state.estrategia,
+        "conexion": st.session_state.conexion_evangelio,
+    },
+    "aplicacion": {
+        "cristianos": st.session_state.aplicacion_cristianos,
+        "no_cristianos": st.session_state.aplicacion_no_cristianos,
+    }
+}
+
+json_str = json.dumps(hoja, ensure_ascii=False, indent=2)
+
+st.download_button(
+    label="⬇️ Descargar hoja (JSON)",
+    data=json_str,
+    file_name="hoja_trabajo.json",
+    mime="application/json"
+)
