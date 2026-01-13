@@ -246,17 +246,287 @@ else:
 
     st.divider()
 
+        # -----------------------------
+    # Secciones oficiales (MVP) — con session_state
+    # -----------------------------
+    st.markdown("## 1) Contexto e hilos contextuales")
+
+    # Inicializar estado de hoja (si no existe)
+    defaults = {
+        "contexto_literario": "",
+        "contexto_cultural": "",
+        "contexto_biblico": "",
+        "contexto_circunstancial": "",
+        "linea_melodica": "",
+        "argumento_autor": "",
+        "estrategia": "— Selecciona —",
+        "conexion_evangelio": "",
+        "aplicacion_cristianos": "",
+        "aplicacion_no_cristianos": "",
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.contexto_literario = st.text_area(
+            "Contexto literario (¿qué pasa antes/después?)",
+            value=st.session_state.contexto_literario,
+            height=110
+        )
+        st.session_state.contexto_cultural = st.text_area(
+            "Contexto cultural (solo si el texto lo exige)",
+            value=st.session_state.contexto_cultural,
+            height=110
+        )
+    with col2:
+        st.session_state.contexto_biblico = st.text_area(
+            "Contexto bíblico (citas/alusiones; relación con otros textos)",
+            value=st.session_state.contexto_biblico,
+            height=110
+        )
+        st.session_state.contexto_circunstancial = st.text_area(
+            "Contexto circunstancial (situación del autor/audiencia)",
+            value=st.session_state.contexto_circunstancial,
+            height=110
+        )
+
+    st.markdown("## 2) Línea melódica del libro")
+    st.session_state.linea_melodica = st.text_input(
+        "En una frase: ¿cuál es la línea melódica del libro?",
+        value=st.session_state.linea_melodica
+    )
+
+    st.markdown("## 3) Argumento del autor (flujo)")
+    st.session_state.argumento_autor = st.text_area(
+        "Resume el argumento en 3–6 líneas (qué está haciendo el autor y cómo llega al énfasis)",
+        value=st.session_state.argumento_autor,
+        height=140
+    )
+
+    st.markdown("## 4) Del texto al evangelio")
+    st.session_state.estrategia = st.selectbox(
+        "Estrategia principal",
+        ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+         "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"],
+        index=["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+               "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"].index(st.session_state.estrategia)
+        if st.session_state.estrategia in ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+                                           "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"]
+        else 0
+    )
+    st.session_state.conexion_evangelio = st.text_area(
+        "Explica la conexión con el evangelio (sin opacar el énfasis del texto)",
+        value=st.session_state.conexion_evangelio,
+        height=120
+    )
+
+    st.markdown("## 5) Del significado a la vida")
+    st.session_state.aplicacion_cristianos = st.text_area(
+        "Aplicación para cristianos (concretas, 2–4)",
+        value=st.session_state.aplicacion_cristianos,
+        height=110
+    )
+    st.session_state.aplicacion_no_cristianos = st.text_area(
+        "Aplicación para no cristianos (concretas, 1–3)",
+        value=st.session_state.aplicacion_no_cristianos,
+        height=110
+    )
+
+    st.divider()
+
+        # -----------------------------
+    # Secciones oficiales (MVP) — con session_state
+    # -----------------------------
+    st.markdown("## 1) Contexto e hilos contextuales")
+
+    # Inicializar estado de hoja (si no existe)
+    defaults = {
+        "contexto_literario": "",
+        "contexto_cultural": "",
+        "contexto_biblico": "",
+        "contexto_circunstancial": "",
+        "linea_melodica": "",
+        "argumento_autor": "",
+        "estrategia": "— Selecciona —",
+        "conexion_evangelio": "",
+        "aplicacion_cristianos": "",
+        "aplicacion_no_cristianos": "",
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.contexto_literario = st.text_area(
+            "Contexto literario (¿qué pasa antes/después?)",
+            value=st.session_state.contexto_literario,
+            height=110
+        )
+        st.session_state.contexto_cultural = st.text_area(
+            "Contexto cultural (solo si el texto lo exige)",
+            value=st.session_state.contexto_cultural,
+            height=110
+        )
+    with col2:
+        st.session_state.contexto_biblico = st.text_area(
+            "Contexto bíblico (citas/alusiones; relación con otros textos)",
+            value=st.session_state.contexto_biblico,
+            height=110
+        )
+        st.session_state.contexto_circunstancial = st.text_area(
+            "Contexto circunstancial (situación del autor/audiencia)",
+            value=st.session_state.contexto_circunstancial,
+            height=110
+        )
+
+    st.markdown("## 2) Línea melódica del libro")
+    st.session_state.linea_melodica = st.text_input(
+        "En una frase: ¿cuál es la línea melódica del libro?",
+        value=st.session_state.linea_melodica
+    )
+
+    st.markdown("## 3) Argumento del autor (flujo)")
+    st.session_state.argumento_autor = st.text_area(
+        "Resume el argumento en 3–6 líneas (qué está haciendo el autor y cómo llega al énfasis)",
+        value=st.session_state.argumento_autor,
+        height=140
+    )
+
+    st.markdown("## 4) Del texto al evangelio")
+    st.session_state.estrategia = st.selectbox(
+        "Estrategia principal",
+        ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+         "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"],
+        index=["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+               "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"].index(st.session_state.estrategia)
+        if st.session_state.estrategia in ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+                                           "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"]
+        else 0
+    )
+    st.session_state.conexion_evangelio = st.text_area(
+        "Explica la conexión con el evangelio (sin opacar el énfasis del texto)",
+        value=st.session_state.conexion_evangelio,
+        height=120
+    )
+
+    st.markdown("## 5) Del significado a la vida")
+    st.session_state.aplicacion_cristianos = st.text_area(
+        "Aplicación para cristianos (concretas, 2–4)",
+        value=st.session_state.aplicacion_cristianos,
+        height=110
+    )
+    st.session_state.aplicacion_no_cristianos = st.text_area(
+        "Aplicación para no cristianos (concretas, 1–3)",
+        value=st.session_state.aplicacion_no_cristianos,
+        height=110
+    )
+
+    st.divider()
+
+       # -----------------------------
+    # Secciones oficiales (MVP) — con session_state
+    # -----------------------------
+    st.markdown("## 1) Contexto e hilos contextuales")
+
+    # Inicializar estado de hoja (si no existe)
+    defaults = {
+        "contexto_literario": "",
+        "contexto_cultural": "",
+        "contexto_biblico": "",
+        "contexto_circunstancial": "",
+        "linea_melodica": "",
+        "argumento_autor": "",
+        "estrategia": "— Selecciona —",
+        "conexion_evangelio": "",
+        "aplicacion_cristianos": "",
+        "aplicacion_no_cristianos": "",
+    }
+    for k, v in defaults.items():
+        if k not in st.session_state:
+            st.session_state[k] = v
+
+    col1, col2 = st.columns(2)
+    with col1:
+        st.session_state.contexto_literario = st.text_area(
+            "Contexto literario (¿qué pasa antes/después?)",
+            value=st.session_state.contexto_literario,
+            height=110
+        )
+        st.session_state.contexto_cultural = st.text_area(
+            "Contexto cultural (solo si el texto lo exige)",
+            value=st.session_state.contexto_cultural,
+            height=110
+        )
+    with col2:
+        st.session_state.contexto_biblico = st.text_area(
+            "Contexto bíblico (citas/alusiones; relación con otros textos)",
+            value=st.session_state.contexto_biblico,
+            height=110
+        )
+        st.session_state.contexto_circunstancial = st.text_area(
+            "Contexto circunstancial (situación del autor/audiencia)",
+            value=st.session_state.contexto_circunstancial,
+            height=110
+        )
+
+    st.markdown("## 2) Línea melódica del libro")
+    st.session_state.linea_melodica = st.text_input(
+        "En una frase: ¿cuál es la línea melódica del libro?",
+        value=st.session_state.linea_melodica
+    )
+
+    st.markdown("## 3) Argumento del autor (flujo)")
+    st.session_state.argumento_autor = st.text_area(
+        "Resume el argumento en 3–6 líneas (qué está haciendo el autor y cómo llega al énfasis)",
+        value=st.session_state.argumento_autor,
+        height=140
+    )
+
+    st.markdown("## 4) Del texto al evangelio")
+    st.session_state.estrategia = st.selectbox(
+        "Estrategia principal",
+        ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+         "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"],
+        index=["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+               "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"].index(st.session_state.estrategia)
+        if st.session_state.estrategia in ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico",
+                                           "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"]
+        else 0
+    )
+    st.session_state.conexion_evangelio = st.text_area(
+        "Explica la conexión con el evangelio (sin opacar el énfasis del texto)",
+        value=st.session_state.conexion_evangelio,
+        height=120
+    )
+
+    st.markdown("## 5) Del significado a la vida")
+    st.session_state.aplicacion_cristianos = st.text_area(
+        "Aplicación para cristianos (concretas, 2–4)",
+        value=st.session_state.aplicacion_cristianos,
+        height=110
+    )
+    st.session_state.aplicacion_no_cristianos = st.text_area(
+        "Aplicación para no cristianos (concretas, 1–3)",
+        value=st.session_state.aplicacion_no_cristianos,
+        height=110
+    )
+
+    st.divider()
+
     # -----------------------------
     # Validación simple + Guardar (demo)
     # -----------------------------
     faltantes = []
-    if not linea_melodica.strip():
+    if not st.session_state.linea_melodica.strip():
         faltantes.append("Línea melódica")
-    if estrategia == "— Selecciona —":
+    if st.session_state.estrategia == "— Selecciona —":
         faltantes.append("Estrategia (texto→evangelio)")
-    if not conexion_evangelio.strip():
+    if not st.session_state.conexion_evangelio.strip():
         faltantes.append("Conexión con el evangelio")
-    if not aplicacion_cristianos.strip():
+    if not st.session_state.aplicacion_cristianos.strip():
         faltantes.append("Aplicación (cristianos)")
 
     if faltantes:
@@ -265,6 +535,8 @@ else:
     if st.button("Guardar hoja (demo)"):
         st.toast("Guardado ✅ (demo)")
         st.write("### Vista previa (demo)")
-        st.write("**Línea melódica:**", linea_melodica or "—")
-        st.write("**Estrategia:**", estrategia)
-        st.write("**Conexión evangelio:**", conexion_evangelio or "—")
+        st.write("**Línea melódica:**", st.session_state.linea_melodica or "—")
+        st.write("**Estrategia:**", st.session_state.estrategia)
+        st.write("**Conexión evangelio:**", st.session_state.conexion_evangelio or "—")
+        st.write("**Aplicación cristianos:**", st.session_state.aplicacion_cristianos or "—")
+        st.write("**Aplicación no cristianos:**", st.session_state.aplicacion_no_cristianos or "—")
