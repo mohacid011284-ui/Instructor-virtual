@@ -1,3 +1,5 @@
+import os
+import json
 import streamlit as st
 
 st.set_page_config(page_title="Instructor Virtual", layout="wide")
@@ -39,6 +41,38 @@ def ir_a_paso(n: int):
     st.session_state.paso_actual = n
 
 def puede_avanzar(paso: int) -> bool:
+    SAVE_PATH = "ultima_hoja.json"
+
+def guardar_hoja_en_archivo():
+    hoja = {
+        "pasaje": st.session_state.pasaje,
+        "audiencia_original": st.session_state.audiencia_original,
+        "tipo_texto": st.session_state.tipo_texto,
+        "estructura": st.session_state.estructura,
+        "enfasis": st.session_state.enfasis,
+        "contexto_literario": st.session_state.get("contexto_literario", ""),
+        "contexto_cultural": st.session_state.get("contexto_cultural", ""),
+        "contexto_biblico": st.session_state.get("contexto_biblico", ""),
+        "contexto_circunstancial": st.session_state.get("contexto_circunstancial", ""),
+        "linea_melodica": st.session_state.get("linea_melodica", ""),
+        "argumento_autor": st.session_state.get("argumento_autor", ""),
+        "estrategia": st.session_state.get("estrategia", "— Selecciona —"),
+        "conexion_evangelio": st.session_state.get("conexion_evangelio", ""),
+        "aplicacion_cristianos": st.session_state.get("aplicacion_cristianos", ""),
+        "aplicacion_no_cristianos": st.session_state.get("aplicacion_no_cristianos", ""),
+    }
+    with open(SAVE_PATH, "w", encoding="utf-8") as f:
+        json.dump(hoja, f, ensure_ascii=False, indent=2)
+
+def cargar_hoja_desde_archivo():
+    if not os.path.exists(SAVE_PATH):
+        return False
+    with open(SAVE_PATH, "r", encoding="utf-8") as f:
+        hoja = json.load(f)
+    for k, v in hoja.items():
+        st.session_state[k] = v
+    return True
+
     if paso == 1:
         return bool(st.session_state.pasaje.strip()) and bool(st.session_state.audiencia_original.strip())
     if paso == 2:
