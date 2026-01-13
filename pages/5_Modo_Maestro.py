@@ -133,6 +133,66 @@ def mejorar_enfasis(texto: str) -> tuple[str, list[str]]:
 
     return mejorado, issues
 
+def mejorar_linea_melodica(texto: str) -> tuple[str, list[str]]:
+    issues = []
+    t = (texto or "").strip()
+
+    if not t:
+        return "En una frase: la línea melódica del libro es ____.", ["No hay línea melódica: escribe 1 frase (8–18 palabras)."]
+
+    if wc(t) < 8:
+        issues.append("Línea melódica demasiado corta: debe ser 1 frase clara (mín. 8 palabras).")
+    if wc(t) > 22:
+        issues.append("Línea melódica muy larga: reduce a 1 sola frase (ideal 8–18 palabras).")
+    if contains_any(t, APLICACION_BANDERAS):
+        issues.append("Línea melódica suena a aplicación ('hoy', 'mi vida'...). Debe resumir el mensaje del libro.")
+
+    mejorado = t
+    # Pulido mínimo: una frase y punto final
+    mejorado = mejorado[0].upper() + mejorado[1:] if len(mejorado) > 1 else mejorado
+    if not mejorado.endswith("."):
+        mejorado += "."
+
+    # Si está débil, sugiere plantilla sin inventar contenido
+    if wc(t) < 8 or wc(t) > 22:
+        mejorado = "El libro enfatiza ____ para ____ (1 frase, sin aplicación)."
+
+    return mejorado, issues
+
+
+def mejorar_argumento_autor(texto: str) -> tuple[str, list[str]]:
+    issues = []
+    t = (texto or "").strip()
+
+    if not t:
+        return (
+            "En 3–6 líneas:\n"
+            "1) El autor está haciendo ____.\n"
+            "2) Lo hace mediante ____.\n"
+            "3) Por eso el énfasis del pasaje es ____."
+        ), ["No hay argumento del autor: resume el flujo en 3–6 líneas (qué hace y cómo llega al énfasis)."]
+
+    if lc(t) < 3:
+        issues.append("Argumento muy corto: usa 3–6 líneas para mostrar el flujo (qué hace el autor y cómo llega al énfasis).")
+    if contains_any(t, APLICACION_BANDERAS):
+        issues.append("Argumento mezcla aplicación. Primero explica el flujo del autor, luego aplicas.")
+    if wc(t) < 30:
+        issues.append("Argumento con poco detalle: añade conectores (porque/por tanto/pero) y pasos intermedios.")
+
+    # Mejora: si no hay líneas, lo formatea en 3 líneas
+    lines = [ln.strip() for ln in t.splitlines() if ln.strip()]
+    if len(lines) == 1:
+        mejorado = (
+            "1) El autor está haciendo: " + lines[0] + "\n"
+            "2) ¿Cómo lo hace? (conectores, razones, contraste): ____\n"
+            "3) Por eso el énfasis del pasaje es: ____"
+        )
+        issues.append("Te faltan pasos explícitos: separa en 'qué hace' / 'cómo' / 'por eso'.")
+    else:
+        # Si ya tiene varias líneas, solo “pulimos” numeración
+        mejorado = "\n".join([f"{i+1}) {ln}" if not re.match(r"^\d+\)", ln) else ln for i, ln in enumerate(lines)])
+
+    return mejorado, issues
 
 def mejorar_evangelio(estrategia: str, conexion: str) -> tuple[str, list[str]]:
     issues = []
@@ -191,6 +251,8 @@ def mejorar_aplicacion(ap_crist: str, ap_no: str) -> tuple[str, str, list[str]]:
 # Leer entradas del alumno (session_state)
 # =============================
 alumno = {
+    "linea_melodica": st.session_state.get("linea_melodica", ""),
+    "argumento_autor": st.session_state.get("argumento_autor", ""),
     "pasaje": st.session_state.get("pasaje", ""),
     "audiencia_original": st.session_state.get("audiencia_original", ""),
     "tipo_texto": st.session_state.get("tipo_texto", ""),
