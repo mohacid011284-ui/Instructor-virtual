@@ -318,9 +318,13 @@ else:
 
 st.divider()
 
+st.divider()
+
 if not linea_ok:
-    st.error("🔒 Bloqueado: marca los 4 checks de **Permanecer en la línea** para habilitar Exportar y Guardar.")
+    st.error("🔒 Bloqueado: el instructor aún no valida 'Permanecer en la línea'.")
 else:
+    # Exportar + Guardado local aquí...
+
     # -----------------------------
     # Exportar JSON
     # -----------------------------
