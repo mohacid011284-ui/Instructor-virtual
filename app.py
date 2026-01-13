@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 import json
 from datetime import datetime
 
@@ -58,6 +59,41 @@ def ir_a_paso(n: int):
     st.session_state.paso_actual = n
 
 def puede_avanzar(paso: int) -> bool:
+    SAVE_PATH = "ultima_hoja.json"
+
+def snapshot_hoja() -> dict:
+    return {
+        "pasaje": st.session_state.pasaje,
+        "audiencia_original": st.session_state.audiencia_original,
+        "tipo_texto": st.session_state.tipo_texto,
+        "estructura": st.session_state.estructura,
+        "enfasis": st.session_state.enfasis,
+        "contexto_literario": st.session_state.contexto_literario,
+        "contexto_cultural": st.session_state.contexto_cultural,
+        "contexto_biblico": st.session_state.contexto_biblico,
+        "contexto_circunstancial": st.session_state.contexto_circunstancial,
+        "linea_melodica": st.session_state.linea_melodica,
+        "argumento_autor": st.session_state.argumento_autor,
+        "estrategia": st.session_state.estrategia,
+        "conexion_evangelio": st.session_state.conexion_evangelio,
+        "aplicacion_cristianos": st.session_state.aplicacion_cristianos,
+        "aplicacion_no_cristianos": st.session_state.aplicacion_no_cristianos,
+    }
+
+def guardar_ultima_hoja():
+    data = snapshot_hoja()
+    with open(SAVE_PATH, "w", encoding="utf-8") as f:
+        json.dump(data, f, ensure_ascii=False, indent=2)
+
+def cargar_ultima_hoja() -> bool:
+    if not os.path.exists(SAVE_PATH):
+        return False
+    with open(SAVE_PATH, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    for k, v in data.items():
+        st.session_state[k] = v
+    return True
+
     if paso == 1:
         return bool(st.session_state.pasaje.strip()) and bool(st.session_state.audiencia_original.strip())
     if paso == 2:
