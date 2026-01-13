@@ -186,31 +186,85 @@ elif modo == "Maestro":
 # Hoja de trabajo (usa lo capturado)
 # -----------------------------
 else:
-    st.subheader("Hoja de trabajo (MVP)")
+    st.subheader("Hoja de trabajo (oficial — MVP)")
 
     if st.session_state.leccion_completada < 1:
         st.warning("🔒 Bloqueada: completa la Lección 1 en Modo Aula.")
-    else:
-        # Bloqueo por pasos del alumno
-        if not (st.session_state.pasaje.strip() and st.session_state.enfasis.strip() and st.session_state.estructura.strip()):
-            st.warning("🔒 Completa en Modo Alumno hasta **Estructura** y **Énfasis** para desbloquear esta hoja.")
-        else:
-            st.success("Desbloqueada ✅")
+        st.stop()
 
-            st.caption("Pasaje/referencia:")
-            st.code(st.session_state.pasaje)
+    # Bloqueo por pasos del alumno
+    if not (st.session_state.pasaje.strip() and st.session_state.enfasis.strip() and st.session_state.estructura.strip()):
+        st.warning("🔒 Completa en Modo Alumno hasta **Estructura** y **Énfasis** para desbloquear esta hoja.")
+        st.stop()
 
-            st.markdown("### Resumen traído del Modo Alumno")
-            st.write("**Audiencia original:**")
-            st.write(st.session_state.audiencia_original or "—")
-            st.write("**Tipo de texto:**", st.session_state.tipo_texto or "—")
-            st.write("**Estructura:**")
-            st.write(st.session_state.estructura or "—")
-            st.write("**Énfasis:**", st.session_state.enfasis or "—")
+    st.success("Desbloqueada ✅")
 
-            st.divider()
-            st.markdown("### Sección extra (notas)")
-            notas = st.text_area("Observaciones / conectores / repeticiones", height=120)
+    # -----------------------------
+    # Encabezado / Pasaje
+    # -----------------------------
+    st.caption("Pasaje/referencia:")
+    st.code(st.session_state.pasaje)
 
-            if st.button("Guardar (demo)"):
-                st.toast("Guardado ✅ (demo)")
+    st.markdown("### Resumen traído del Modo Alumno")
+    st.write("**Audiencia original:**")
+    st.write(st.session_state.audiencia_original or "—")
+    st.write("**Tipo de texto:**", st.session_state.tipo_texto or "—")
+    st.write("**Estructura:**")
+    st.write(st.session_state.estructura or "—")
+    st.write("**Énfasis:**", st.session_state.enfasis or "—")
+
+    st.divider()
+
+    # -----------------------------
+    # Secciones oficiales (MVP)
+    # -----------------------------
+    st.markdown("## 1) Contexto e hilos contextuales")
+    col1, col2 = st.columns(2)
+    with col1:
+        contexto_literario = st.text_area("Contexto literario (¿qué pasa antes/después?)", height=110)
+        contexto_cultural = st.text_area("Contexto cultural (solo si el texto lo exige)", height=110)
+    with col2:
+        contexto_biblico = st.text_area("Contexto bíblico (citas/alusiones; relación con otros textos)", height=110)
+        contexto_circunstancial = st.text_area("Contexto circunstancial (situación del autor/audiencia)", height=110)
+
+    st.markdown("## 2) Línea melódica del libro")
+    linea_melodica = st.text_input("En una frase: ¿cuál es la línea melódica del libro?")
+
+    st.markdown("## 3) Argumento del autor (flujo)")
+    argumento_autor = st.text_area("Resume el argumento en 3–6 líneas (qué está haciendo el autor y cómo llega al énfasis)", height=140)
+
+    st.markdown("## 4) Del texto al evangelio")
+    estrategia = st.selectbox(
+        "Estrategia principal",
+        ["— Selecciona —", "Tipología", "Promesa-Cumplimiento", "Tema bíblico", "Contraste ley/evangelio", "Necesidad humana/solución en Cristo", "Otro"]
+    )
+    conexion_evangelio = st.text_area("Explica la conexión con el evangelio (sin opacar el énfasis del texto)", height=120)
+
+    st.markdown("## 5) Del significado a la vida")
+    aplicacion_cristianos = st.text_area("Aplicación para cristianos (concretas, 2–4)", height=110)
+    aplicacion_no_cristianos = st.text_area("Aplicación para no cristianos (concretas, 1–3)", height=110)
+
+    st.divider()
+
+    # -----------------------------
+    # Validación simple + Guardar (demo)
+    # -----------------------------
+    faltantes = []
+    if not linea_melodica.strip():
+        faltantes.append("Línea melódica")
+    if estrategia == "— Selecciona —":
+        faltantes.append("Estrategia (texto→evangelio)")
+    if not conexion_evangelio.strip():
+        faltantes.append("Conexión con el evangelio")
+    if not aplicacion_cristianos.strip():
+        faltantes.append("Aplicación (cristianos)")
+
+    if faltantes:
+        st.info("Para completar el MVP, te faltan: " + ", ".join(faltantes))
+
+    if st.button("Guardar hoja (demo)"):
+        st.toast("Guardado ✅ (demo)")
+        st.write("### Vista previa (demo)")
+        st.write("**Línea melódica:**", linea_melodica or "—")
+        st.write("**Estrategia:**", estrategia)
+        st.write("**Conexión evangelio:**", conexion_evangelio or "—")
