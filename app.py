@@ -374,8 +374,9 @@ else:
         st.write("**Aplicación cristianos:**", st.session_state.aplicacion_cristianos or "—")
         st.write("**Aplicación no cristianos:**", st.session_state.aplicacion_no_cristianos or "—")
 
-    st.divider()
+        st.divider()
     st.markdown("## Exportar (JSON)")
+
     hoja_export = {
         "timestamp": datetime.now().isoformat(timespec="seconds"),
         "pasaje": st.session_state.pasaje,
@@ -383,3 +384,28 @@ else:
         "tipo_texto": st.session_state.tipo_texto,
         "estructura": st.session_state.estructura,
         "enfasis": st.session_state.enfasis,
+        "contexto": {
+            "literario": st.session_state.contexto_literario,
+            "cultural": st.session_state.contexto_cultural,
+            "biblico": st.session_state.contexto_biblico,
+            "circunstancial": st.session_state.contexto_circunstancial,
+        },
+        "linea_melodica": st.session_state.linea_melodica,
+        "argumento_autor": st.session_state.argumento_autor,
+        "texto_a_evangelio": {
+            "estrategia": st.session_state.estrategia,
+            "conexion": st.session_state.conexion_evangelio,
+        },
+        "aplicacion": {
+            "cristianos": st.session_state.aplicacion_cristianos,
+            "no_cristianos": st.session_state.aplicacion_no_cristianos,
+        },
+    }
+
+    st.download_button(
+        label="⬇️ Descargar hoja (JSON)",
+        data=json.dumps(hoja_export, ensure_ascii=False, indent=2),
+        file_name="hoja_trabajo.json",
+        mime="application/json",
+        key="btn_download_json"
+    )
