@@ -245,51 +245,59 @@ if feedback:
 else:
     st.success("¡Buen trabajo! Tu hoja tiene los mínimos del MVP. Ahora puedes exportar/guardar.")
 
-
-# Exportar JSON
-st.markdown("## Exportar (JSON)")
-hoja_export = {
-    "timestamp": datetime.now().isoformat(timespec="seconds"),
-    "pasaje": st.session_state.pasaje,
-    "audiencia_original": st.session_state.audiencia_original,
-    "tipo_texto": st.session_state.tipo_texto,
-    "estructura": st.session_state.estructura,
-    "enfasis": st.session_state.enfasis,
-    "contexto": {
-        "literario": st.session_state.contexto_literario,
-        "cultural": st.session_state.contexto_cultural,
-        "biblico": st.session_state.contexto_biblico,
-        "circunstancial": st.session_state.contexto_circunstancial,
-    },
-    "linea_melodica": st.session_state.linea_melodica,
-    "argumento_autor": st.session_state.argumento_autor,
-    "texto_a_evangelio": {
-        "estrategia": st.session_state.estrategia,
-        "conexion": st.session_state.conexion_evangelio,
-    },
-    "aplicacion": {
-        "cristianos": st.session_state.aplicacion_cristianos,
-        "no_cristianos": st.session_state.aplicacion_no_cristianos,
-    }
-}
-
-st.download_button(
-    label="⬇️ Descargar hoja (JSON)",
-    data=json.dumps(hoja_export, ensure_ascii=False, indent=2),
-    file_name="hoja_trabajo.json",
-    mime="application/json",
-    key="btn_download_json"
-)
-
 st.divider()
-st.markdown("## Guardado local (MVP)")
-c1, c2 = st.columns(2)
-with c1:
-    if st.button("💾 Guardar como última hoja", key="btn_save_last"):
-        guardar_ultima_hoja()
-        st.success("Guardado en ultima_hoja.json ✅")
-with c2:
-    if st.button("📥 Cargar última hoja", key="btn_load_last"):
-        ok = cargar_ultima_hoja()
-        st.success("Cargado ✅" if ok else "No existe ultima_hoja.json todavía.")
 
+if not linea_ok:
+    st.error("🔒 Bloqueado: marca los 4 checks de **Permanecer en la línea** para habilitar Exportar y Guardar.")
+else:
+    # -----------------------------
+    # Exportar JSON
+    # -----------------------------
+    st.markdown("## Exportar (JSON)")
+    hoja_export = {
+        "timestamp": datetime.now().isoformat(timespec="seconds"),
+        "pasaje": st.session_state.pasaje,
+        "audiencia_original": st.session_state.audiencia_original,
+        "tipo_texto": st.session_state.tipo_texto,
+        "estructura": st.session_state.estructura,
+        "enfasis": st.session_state.enfasis,
+        "contexto": {
+            "literario": st.session_state.contexto_literario,
+            "cultural": st.session_state.contexto_cultural,
+            "biblico": st.session_state.contexto_biblico,
+            "circunstancial": st.session_state.contexto_circunstancial,
+        },
+        "linea_melodica": st.session_state.linea_melodica,
+        "argumento_autor": st.session_state.argumento_autor,
+        "texto_a_evangelio": {
+            "estrategia": st.session_state.estrategia,
+            "conexion": st.session_state.conexion_evangelio,
+        },
+        "aplicacion": {
+            "cristianos": st.session_state.aplicacion_cristianos,
+            "no_cristianos": st.session_state.aplicacion_no_cristianos,
+        }
+    }
+
+    st.download_button(
+        label="⬇️ Descargar hoja (JSON)",
+        data=json.dumps(hoja_export, ensure_ascii=False, indent=2),
+        file_name="hoja_trabajo.json",
+        mime="application/json",
+        key="btn_download_json"
+    )
+
+    # -----------------------------
+    # Guardado local (MVP)
+    # -----------------------------
+    st.divider()
+    st.markdown("## Guardado local (MVP)")
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("💾 Guardar como última hoja", key="btn_save_last"):
+            guardar_ultima_hoja()
+            st.success("Guardado en ultima_hoja.json ✅")
+    with c2:
+        if st.button("📥 Cargar última hoja", key="btn_load_last"):
+            ok = cargar_ultima_hoja()
+            st.success("Cargado ✅" if ok else "No existe ultima_hoja.json todavía.")
