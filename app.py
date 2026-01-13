@@ -44,6 +44,10 @@ for k, v in hoja_defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
+if "autocarga_hecha" not in st.session_state:
+    st.session_state.autocarga_hecha = True
+    cargar_ultima_hoja()
+
 # -----------------------------
 # Sidebar
 # -----------------------------
