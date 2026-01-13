@@ -283,6 +283,8 @@ issues = (
     [("Énfasis", x) for x in issues_enf] +
     [("Evangelio", x) for x in issues_eva] +
     [("Aplicación", x) for x in issues_app]
+    [("Línea melódica", x) for x in issues_lin] +
+    [("Argumento del autor", x) for x in issues_arg]
 )
 
 # =============================
@@ -317,6 +319,9 @@ comparacion("Audiencia original", alumno["audiencia_original"], mej_aud)
 comparacion("Estructura", alumno["estructura"], mej_est)
 comparacion("Énfasis", alumno["enfasis"], mej_enf)
 comparacion("Conexión al evangelio", alumno["conexion_evangelio"], mej_eva)
+
+mej_lin, issues_lin = mejorar_linea_melodica(alumno["linea_melodica"])
+mej_arg, issues_arg = mejorar_argumento_autor(alumno["argumento_autor"])
 
 st.markdown("## Aplicación")
 c1, c2 = st.columns(2)
