@@ -100,7 +100,82 @@ st.write(st.session_state.estructura or "—")
 st.write("**Énfasis:**", st.session_state.enfasis or "—")
 
 st.divider()
-st.markdown("## Permanecer en la línea (control rápido)")
+st.markdown("## Permanecer en la línea (evaluación automática del instructor)")
+
+def contiene_lenguaje_aplicacion(texto: str) -> bool:
+    t = (texto or "").lower()
+    banderas = [
+        "hoy", "mi vida", "en mi", "en mi trabajo", "mi familia", "yo", "nosotros",
+        "en esta semana", "en mi casa", "mi negocio", "mi escuela"
+    ]
+    return any(b in t for b in banderas)
+
+def estructura_parece_estructura(texto: str) -> bool:
+    t = (texto or "").strip()
+    # Heurística: varias líneas o conectores
+    if len(t.splitlines()) >= 2:
+        return True
+    conectores = ["por tanto", "pero", "porque", "entonces", "sin embargo", "para que", "a fin de", "y", "mas"]
+    tl = t.lower()
+    return any(c in tl for c in conectores) and len(t) >= 40
+
+def enfasis_suficiente(texto: str) -> bool:
+    t = (texto or "").strip()
+    # Heurística: una oración “completa”
+    return len(t) >= 18 and len(t.split()) >= 6
+
+def conexion_evangelio_suficiente(estrategia: str, conexion: str) -> bool:
+    if (estrategia or "") == "— Selecciona —":
+        return False
+    return len((conexion or "").strip()) >= 25
+
+def aplicacion_concreta(texto: str) -> bool:
+    t = (texto or "").strip()
+    # Heurística: longitud mínima + presencia de verbos típicos de aplicación
+    verbos = ["haz", "hazlo", "busca", "ora", "confiesa", "perdona", "sirve", "lee", "deja", "evita", "practica"]
+    tl = t.lower()
+    return len(t) >= 35 and any(v in tl for v in verbos)
+
+# Evaluaciones automáticas
+ok1 = enfasis_suficiente(st.session_state.enfasis) and not contiene_lenguaje_aplicacion(st.session_state.enfasis)
+ok2 = estructura_parece_estructura(st.session_state.estructura)
+ok3 = conexion_evangelio_suficiente(st.session_state.estrategia, st.session_state.conexion_evangelio)
+ok4 = aplicacion_concreta(st.session_state.aplicacion_cristianos)
+
+# Mostrar como "checks" bloqueados (solo lectura)
+st.checkbox(
+    "1) Énfasis describe lo que el texto enfatiza (no aplicación).",
+    value=ok1,
+    disabled=True,
+    key="auto_chk_linea_1"
+)
+st.checkbox(
+    "2) Estructura sale del texto (movimientos / conectores / repeticiones).",
+    value=ok2,
+    disabled=True,
+    key="auto_chk_linea_2"
+)
+st.checkbox(
+    "3) Conexión al evangelio clara sin reemplazar el énfasis.",
+    value=ok3,
+    disabled=True,
+    key="auto_chk_linea_3"
+)
+st.checkbox(
+    "4) Aplicación concreta sale del significado (no generalidades).",
+    value=ok4,
+    disabled=True,
+    key="auto_chk_linea_4"
+)
+
+# Para bloquear export/guardar
+linea_ok = all([ok1, ok2, ok3, ok4])
+
+if linea_ok:
+    st.success("✅ El instructor considera que vas por buen camino. Exportar/Guardar habilitado.")
+else:
+    st.warning("⚠️ Aún falta fortalecer una o más áreas. Ajusta y vuelve a intentar.")
+
 
 # Heurística simple: palabras típicas de aplicación o salto prematuro
 banderas = ["hoy", "mi vida", "en mi", "en mi trabajo", "mi familia", "México", "iglesia local", "yo", "nosotros"]
@@ -119,10 +194,6 @@ with c2:
 if alertas:
     st.warning("⚠️ Detecté lenguaje típico de aplicación/salto temprano en tus respuestas: " + ", ".join(sorted(set(alertas))))
     st.caption("Esto no siempre es malo, pero revisa que primero quede claro el significado del texto antes de aplicar.")
-
-linea_ok = all([ok1, ok2, ok3, ok4])
-st.write("Estado:", "✅ En línea" if linea_ok else "— Por revisar")
-
 
 # 1) Contexto
 st.markdown("## 1) Contexto e hilos contextuales")
