@@ -41,6 +41,41 @@ for k, v in hoja_defaults.items():
 SAVE_PATH = "ultima_hoja.json"
 
 def snapshot_hoja() -> dict:
+    def contiene_lenguaje_aplicacion(texto: str) -> bool:
+        t = (texto or "").lower()
+        banderas = ["hoy", "mi vida", "en mi", "en mi trabajo", "mi familia", "yo", "nosotros",
+                    "en esta semana", "en mi casa", "mi negocio", "mi escuela"]
+        return any(b in t for b in banderas)
+
+    def estructura_parece_estructura(texto: str) -> bool:
+        t = (texto or "").strip()
+        if len(t.splitlines()) >= 2:
+            return True
+        conectores = ["por tanto", "pero", "porque", "entonces", "sin embargo", "para que", "a fin de"]
+        tl = t.lower()
+        return any(c in tl for c in conectores) and len(t) >= 40
+
+    def enfasis_suficiente(texto: str) -> bool:
+        t = (texto or "").strip()
+        return len(t) >= 18 and len(t.split()) >= 6
+
+    def conexion_evangelio_suficiente(estrategia: str, conexion: str) -> bool:
+        if (estrategia or "") == "— Selecciona —":
+            return False
+        return len((conexion or "").strip()) >= 25
+
+    def aplicacion_concreta(texto: str) -> bool:
+        t = (texto or "").strip()
+        verbos = ["haz", "busca", "ora", "confiesa", "perdona", "sirve", "lee", "deja", "evita", "practica"]
+        tl = t.lower()
+        return len(t) >= 35 and any(v in tl for v in verbos)
+
+    ok1 = enfasis_suficiente(st.session_state.enfasis) and not contiene_lenguaje_aplicacion(st.session_state.enfasis)
+    ok2 = estructura_parece_estructura(st.session_state.estructura)
+    ok3 = conexion_evangelio_suficiente(st.session_state.estrategia, st.session_state.conexion_evangelio)
+    ok4 = aplicacion_concreta(st.session_state.aplicacion_cristianos)
+    linea_ok = all([ok1, ok2, ok3, ok4])
+
     return {
         "pasaje": st.session_state.pasaje,
         "audiencia_original": st.session_state.audiencia_original,
@@ -57,11 +92,14 @@ def snapshot_hoja() -> dict:
         "conexion_evangelio": st.session_state.conexion_evangelio,
         "aplicacion_cristianos": st.session_state.aplicacion_cristianos,
         "aplicacion_no_cristianos": st.session_state.aplicacion_no_cristianos,
+        "evaluacion_linea": {
+            "ok1_enfasis": ok1,
+            "ok2_estructura": ok2,
+            "ok3_evangelio": ok3,
+            "ok4_aplicacion": ok4,
+            "linea_ok": linea_ok,
+        },
     }
-
-def guardar_ultima_hoja():
-    with open(SAVE_PATH, "w", encoding="utf-8") as f:
-        json.dump(snapshot_hoja(), f, ensure_ascii=False, indent=2)
 
 def cargar_ultima_hoja() -> bool:
     if not os.path.exists(SAVE_PATH):
