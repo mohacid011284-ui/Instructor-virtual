@@ -98,6 +98,28 @@ DB_BIBLIA = {
     }
 }
 
+# === VIDEOTECA DE LECCIONES ===
+DB_VIDEOS = {
+    "1. Bienvenida": "https://youtu.be/TU_ENLACE_LECCION_1",
+    "2. Parcelación": "https://youtu.be/TU_ENLACE_LECCION_2",
+    "3. Indicaciones": "https://youtu.be/TU_ENLACE_LECCION_3",
+    "4. Introducción al género": {
+        "Narrativa": "https://youtu.be/VIDEO_NARRATIVA",
+        "Poético": "https://youtu.be/VIDEO_POETICO",
+        "Discurso": "https://youtu.be/VIDEO_DISCURSO"
+    },
+    "5. Tipos de géneros y Rasgos literarios": "https://youtu.be/TU_ENLACE_LECCION_5",
+    "6. Permaneciendo en la línea": "https://youtu.be/TU_ENLACE_LECCION_6",
+    "7. Énfasis": "https://youtu.be/TU_ENLACE_LECCION_7",
+    "8. Estructura": "https://youtu.be/TU_ENLACE_LECCION_8",
+    "9. Estrategias": "https://youtu.be/TU_ENLACE_LECCION_9",
+    "10. Contexto (General)": "https://youtu.be/TU_ENLACE_LECCION_10",
+    "11. Argumento A/Original": "https://youtu.be/TU_ENLACE_LECCION_11",
+    "12. Reflexión Teológica (General)": "https://youtu.be/TU_ENLACE_LECCION_12",
+    "13. Persuasión": "https://youtu.be/TU_ENLACE_LECCION_13",
+    "14. Arreglo": "https://youtu.be/TU_ENLACE_LECCION_14"
+}
+
 # ==========================================
 # 3. GESTIÓN DE SECRETOS Y CONEXIONES
 # ==========================================
@@ -110,9 +132,10 @@ except Exception as e:
     st.stop()
 
 # ==========================================
-# 4. CONFIGURACIÓN DEL CEREBRO IA
+# 4. CEREBROS DE LA IA (PROMPTS)
 # ==========================================
 
+# --- CEREBRO 1: EL TUTOR (Para el Alumno) ---
 INSTRUCCIONES_BASE = """
 Eres un GPT personalizado que funciona como INSTRUCTOR DE INTERPRETACIÓN BÍBLICA (Paideia AI).
 Tu tono es pastoral, firme pero amable, como el Pastor Mohacid Leal.
@@ -135,9 +158,48 @@ TU FUENTE DE VERDAD:
 Usa EXCLUSIVAMENTE el contenido proporcionado en los archivos de conocimiento.
 """
 
-def get_full_prompt():
+# --- CEREBRO 2: EL MAESTRO EXPERTO (Para Revisión y Admin) ---
+INSTRUCCIONES_MAESTRO = """
+Actúa como un INSTRUCTOR VIRTUAL AVANZADO DE INTERPRETACIÓN BÍBLICA Y TEOLÓGICA, con enfoque expositivo, pastoral, pedagógico y fiel a las Escrituras.
+Tu función principal es enseñar, explicar e interpretar la Biblia de manera responsable, profunda y clara.
+
+────────────────────────
+🧠 ENFOQUE GENERAL
+────────────────────────
+Prioriza siempre la fidelidad bíblica por encima de opiniones personales.
+Evita sacar textos de su contexto inmediato o canónico.
+Diferencia claramente entre interpretación, doctrina, aplicación y opinión.
+No espiritualices ni alegorices sin base textual.
+
+────────────────────────
+✅ ESTRUCTURA OBLIGATORIA (3 FASES)
+────────────────────────
+FASE 1: EXÉGESIS (El Qué)
+- Texto, Audiencia, Tipo de Texto.
+- Estructura y Argumento.
+- Énfasis: una Idea Central Única (ICU).
+
+FASE 2: REFLEXIÓN TEOLÓGICA (La Conexión)
+- Conecta con Cristo SOLO por vías legítimas (Observación, Ley->Gracia, Tipología, Promesa/Cumplimiento).
+
+FASE 3: PERSUASIÓN (El Para Qué)
+- Argumentos, Aplicación específica y Arreglo (Bosquejo).
+
+────────────────────────
+⬛ RECTÁNGULO DE CLOWNEY (Obligatorio)
+────────────────────────
+Usa este esquema para moverte correctamente desde el pasaje hasta Cristo:
+1. 📍 El texto en su contexto (significado original).
+2. ⬆️ Conexión con la historia redentora.
+3. ➡️ Cristo (cumplimiento).
+4. ⬇️ Aplicación para nosotros (en Cristo).
+
+🎯 Objetivo: Evitar moralismo sin evangelio y alegoría forzada.
+"""
+
+def get_full_prompt_alumno():
     prompt = INSTRUCCIONES_BASE
-    prompt += "\n\n=== BIBLIOTECA DE CONOCIMIENTO ===\n"
+    prompt += "\n\n=== BIBLIOTECA DE CONOCIMIENTO (ALUMNO) ===\n"
     if os.path.exists("knowledge"):
         archivos = sorted([f for f in os.listdir("knowledge") if f.endswith(".md")])
         for f in archivos:
@@ -156,7 +218,7 @@ if "chat" not in st.session_state:
     st.session_state.chat = st.session_state.client.chats.create(
         model="gemini-2.0-flash",
         config=types.GenerateContentConfig(
-            system_instruction=get_full_prompt(),
+            system_instruction=get_full_prompt_alumno(),
             temperature=0.3
         )
     )
@@ -168,7 +230,7 @@ if "messages" not in st.session_state: st.session_state.messages = []
 if "usuario_validado" not in st.session_state: st.session_state.usuario_validado = False
 if "datos_usuario" not in st.session_state: st.session_state.datos_usuario = {}
 if "maestro_unlocked" not in st.session_state: st.session_state.maestro_unlocked = False
-if "ultimo_tema_visto" not in st.session_state: st.session_state.ultimo_tema_visto = "" 
+if "ultimo_tema_visto" not in st.session_state: st.session_state.ultimo_tema_visto = ""
 if "modo_maestro_view" not in st.session_state: st.session_state.modo_maestro_view = False
 
 # ==========================================
@@ -204,34 +266,39 @@ def actualizar_progreso(email, nuevo_nivel):
     except Exception: pass
 
 def normalizar_nombre(texto):
-    """Limpia nombres para archivos (útil aunque sean genéricos)"""
     if not texto: return ""
     texto = texto.lower()
     texto = ''.join((c for c in unicodedata.normalize('NFD', texto) if unicodedata.category(c) != 'Mn'))
     return texto.replace(" ", "_")
 
+def mostrar_video_leccion(leccion_actual):
+    video_url = None
+    if "4." in leccion_actual and leccion_actual in DB_VIDEOS:
+        genero = st.session_state.datos_usuario.get('Genero')
+        if genero in DB_VIDEOS[leccion_actual]:
+            video_url = DB_VIDEOS[leccion_actual][genero]
+    elif leccion_actual in DB_VIDEOS and isinstance(DB_VIDEOS[leccion_actual], str):
+        video_url = DB_VIDEOS[leccion_actual]
+    if video_url:
+        st.info("🎥 **Video Explicativo:** Antes de continuar, mira este breve video.")
+        with st.expander("▶️ Ver Video de la Clase", expanded=True):
+            st.video(video_url)
+
 def contenido_interactivo_leccion_3():
-    """Maneja la selección de proyecto y descarga de materiales ESTÁNDAR"""
-    
     st.markdown("---")
     st.subheader("5. Materiales y Asignación de Proyecto")
     st.write("Selecciona tu proyecto para habilitar las descargas.")
 
-    # A. MATERIALES GENERALES (Guía + Preguntas Frecuentes)
     with st.expander("📄 Documentos de Apoyo (Descargar primero)", expanded=False):
         c1, c2 = st.columns(2)
-        
-        # Rutas de archivos
         ruta_guia = "materiales/guia_elaboracion.docx"
         ruta_faq = "materiales/preguntas_frecuentes.docx" 
         
-        # Botón 1: Guía
         if os.path.exists(ruta_guia):
             with open(ruta_guia, "rb") as f:
                 c1.download_button("📥 Guía de Elaboración", f, "guia_elaboracion.docx")
         else: c1.warning("Falta: guia_elaboracion.docx")
             
-        # Botón 2: Preguntas Frecuentes
         if os.path.exists(ruta_faq):
             with open(ruta_faq, "rb") as f:
                 c2.download_button("📥 Preguntas Frecuentes", f, "preguntas_frecuentes.docx")
@@ -239,69 +306,146 @@ def contenido_interactivo_leccion_3():
 
     st.divider()
 
-    # B. LÓGICA DE SELECCIÓN (Si no ha elegido, muestra selectores)
     if "libro_seleccionado" not in st.session_state.datos_usuario:
         st.info("🎯 **Configura tu estudio:** Selecciona Género y Libro.")
-        
         col1, col2 = st.columns(2)
         genero = col1.selectbox("1. Género:", ["Seleccionar...", "Narrativa", "Poético", "Discurso"])
         
         libros = []
         if genero != "Seleccionar...":
             libros = list(DB_BIBLIA[genero].keys())
-        
         libro = col2.selectbox("2. Libro:", ["Seleccionar..."] + libros)
         
         if libro != "Seleccionar..." and st.button("🎲 CONFIRMAR Y ASIGNAR PASAJE"):
             with st.spinner("Asignando pasaje aleatorio..."):
                 time.sleep(1.0)
                 pasaje = random.choice(DB_BIBLIA[genero][libro])
-                
-                # Guardamos la selección
                 st.session_state.datos_usuario['Genero'] = genero
                 st.session_state.datos_usuario['libro_seleccionado'] = libro
                 st.session_state.datos_usuario['Pasaje'] = pasaje
                 st.balloons()
                 st.rerun()
-
-    # C. SI YA ELIGIÓ (Muestra descargas estándar)
     else:
         datos = st.session_state.datos_usuario
         st.success(f"✅ PROYECTO: **{datos['libro_seleccionado']}** ({datos['Genero']})")
         st.info(f"📖 TU PASAJE: **{datos['Pasaje']}**")
-        
         st.markdown("#### 📥 Descarga tus Hojas de Trabajo:")
-        st.write("Estas hojas son el formato estándar para tu análisis.")
-        
         col_d1, col_d2 = st.columns(2)
+        ruta_linea = "materiales/linea_melodica_estandar.docx"
+        ruta_trabajo = "materiales/hoja_trabajo_estandar.docx"
         
-        # Archivos ESTÁNDAR
-        archivo_linea = "materiales/linea_melodica_estandar.docx"
-        archivo_trabajo = "materiales/hoja_trabajo_estandar.docx"
-        
-        if os.path.exists(archivo_linea):
-            with open(archivo_linea, "rb") as f:
+        if os.path.exists(ruta_linea):
+            with open(ruta_linea, "rb") as f:
                 col_d1.download_button("📥 Línea Melódica (Plantilla)", f, "linea_melodica_estandar.docx")
         else: col_d1.error("Falta archivo: linea_melodica_estandar.docx")
             
-        if os.path.exists(archivo_trabajo):
-            with open(archivo_trabajo, "rb") as f:
+        if os.path.exists(ruta_trabajo):
+            with open(ruta_trabajo, "rb") as f:
                 col_d2.download_button("📥 Hoja de Trabajo (Plantilla)", f, "hoja_trabajo_estandar.docx")
         else: col_d2.error("Falta archivo: hoja_trabajo_estandar.docx")
         
-        # Checkbox para pruebas (al final)
         if st.checkbox("🔄 Cambiar selección (Solo pruebas)"):
             del st.session_state.datos_usuario['libro_seleccionado']
             st.rerun()
 
+def contenido_vista_maestro():
+    """Interfaz exclusiva para el Maestro: Centro de Comando"""
+    
+    st.markdown("""
+    <div style="background-color:#461b7e;padding:15px;border-radius:10px;margin-bottom:20px;">
+        <h2 style="color:white;margin:0;">👨‍🏫 Centro de Comando del Maestro</h2>
+        <p style="color:#e0e0e0;margin:0;">Panel de Supervisión y Evaluación (Fidelidad Expositiva)</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    tab1, tab2, tab3 = st.tabs(["📝 Revisión de Tareas", "📚 Recursos y Solucionarios", "⚙️ Admin Alumno"])
+
+    # --- PESTAÑA 1: REVISIÓN CON CEREBRO EXPERTO ---
+    with tab1:
+        st.info("Pega aquí el trabajo del alumno. La IA evaluará usando el Rectángulo de Clowney y las 3 Fases Expositivas.")
+        
+        c1, c2 = st.columns(2)
+        tipo_trabajo = c1.selectbox("Tipo de Tarea", ["Línea Melódica", "Hoja de Trabajo (Exégesis)", "Reflexión Teológica", "Bosquejo Final"])
+        libro_contexto = c2.text_input("Libro Bíblico (Contexto)", value=st.session_state.datos_usuario.get('libro_seleccionado', 'General'))
+        
+        texto_alumno = st.text_area("Pegar contenido del alumno:", height=200, placeholder="Pega aquí lo que escribió el alumno...")
+        
+        if st.button("🔍 ANALIZAR Y CALIFICAR (MODO EXPERTO)", type="primary"):
+            if texto_alumno:
+                # AQUÍ INYECTAMOS EL CEREBRO MAESTRO
+                prompt_maestro_evaluacion = (
+                    f"{INSTRUCCIONES_MAESTRO}\n\n"
+                    f"--- SOLICITUD DE EVALUACIÓN ---\n"
+                    f"Estás evaluando una tarea de tipo: '{tipo_trabajo}' sobre el libro de '{libro_contexto}'.\n"
+                    f"CONTENIDO DEL ALUMNO:\n{texto_alumno}\n\n"
+                    "TU TAREA:\n"
+                    "1. Analiza si identificó la Idea Central Única (ICU).\n"
+                    "2. Verifica si pasó por el Rectángulo de Clowney (Evitar moralismo/alegoría).\n"
+                    "3. Evalúa la conexión con Cristo (¿Es legítima o forzada?).\n"
+                    "4. Señala fortalezas y correcciones teológicas necesarias.\n"
+                    "5. Dale una calificación del 1 al 10."
+                )
+                
+                with st.spinner("Analizando con rigor exegético y teológico..."):
+                    try:
+                        # Usamos 'generate_content' directo para no afectar el chat del alumno
+                        res = st.session_state.client.models.generate_content(
+                            model="gemini-2.0-flash", contents=prompt_maestro_evaluacion
+                        )
+                        st.success("Evaluación Generada:")
+                        st.markdown(res.text)
+                    except Exception as e:
+                        st.error(f"Error al conectar con el cerebro del maestro: {e}")
+            else:
+                st.warning("El campo de texto está vacío.")
+
+    # --- PESTAÑA 2: RECURSOS ---
+    with tab2:
+        st.write("Descargas de referencia para el maestro.")
+        c1, c2 = st.columns(2)
+        ruta_linea = "materiales/linea_melodica_estandar.docx"
+        ruta_trabajo = "materiales/hoja_trabajo_estandar.docx"
+        
+        if os.path.exists(ruta_linea):
+            with open(ruta_linea, "rb") as f:
+                c1.download_button("📥 Línea Melódica (Plantilla)", f, "plantilla_linea.docx")
+        
+        if os.path.exists(ruta_trabajo):
+            with open(ruta_trabajo, "rb") as f:
+                c2.download_button("📥 Hoja de Trabajo (Plantilla)", f, "plantilla_trabajo.docx")
+
+    # --- PESTAÑA 3: ADMINISTRACIÓN ---
+    with tab3:
+        st.warning("⚠️ Zona de Peligro: Modificar el estado del alumno.")
+        st.write(f"**Alumno:** {st.session_state.datos_usuario.get('Nombre')}")
+        st.write(f"**Nivel Actual:** {st.session_state.datos_usuario.get('Progreso')} ({st.session_state.leccion_actual_visual})")
+        
+        c_reset, c_skip = st.columns(2)
+        if c_reset.button("🔄 REINICIAR ALUMNO A LECCIÓN 1"):
+            st.session_state.datos_usuario['Progreso'] = 0
+            st.session_state.leccion_actual_visual = TEMARIO_OFICIAL[0]
+            st.session_state.messages = []
+            if 'libro_seleccionado' in st.session_state.datos_usuario:
+                del st.session_state.datos_usuario['libro_seleccionado']
+            actualizar_progreso(st.session_state.datos_usuario['Email'], 0)
+            st.success("Alumno reiniciado.")
+            time.sleep(1)
+            st.rerun()
+            
+        if c_skip.button("⏩ SALTAR AL SIGUIENTE NIVEL"):
+            avanzar_nivel()
+
+    st.divider()
+    if st.button("🔙 SALIR DEL MODO MAESTRO (Volver a Clase)"):
+        st.session_state.modo_maestro_view = False
+        st.rerun()
+
 def avanzar_nivel():
     """Avanza al siguiente nivel de forma segura"""
     nivel_actual = int(st.session_state.datos_usuario['Progreso'])
-    
     if nivel_actual < len(TEMARIO_OFICIAL) - 1:
         nuevo_nivel = nivel_actual + 1
         st.session_state.datos_usuario['Progreso'] = nuevo_nivel
-        # Forzamos la actualización de la variable visual
         st.session_state.leccion_actual_visual = TEMARIO_OFICIAL[nuevo_nivel]
         st.session_state.ultimo_tema_visto = TEMARIO_OFICIAL[nuevo_nivel]
         st.session_state.messages = [] 
@@ -312,64 +456,8 @@ def avanzar_nivel():
         st.balloons()
         st.success("¡CURSO COMPLETADO!")
 
-    def contenido_vista_maestro():
-    """Interfaz exclusiva para el Maestro: Descargas y Revisión"""
-    st.markdown("## 👨‍🏫 Panel de Maestro: Revisión y Herramientas")
-    st.info("Estás en el modo de supervisión. Aquí puedes descargar las plantillas de referencia y corregir el trabajo del alumno.")
-
-    # 1. ZONA DE DESCARGAS (REFERENCIA)
-    st.subheader("1. Plantillas de Referencia")
-    c1, c2 = st.columns(2)
-    
-    ruta_linea = "materiales/linea_melodica_estandar.docx"
-    ruta_trabajo = "materiales/hoja_trabajo_estandar.docx"
-    
-    if os.path.exists(ruta_linea):
-        with open(ruta_linea, "rb") as f:
-            c1.download_button("📥 Descargar Línea Melódica", f, "linea_melodica_estandar.docx")
-    
-    if os.path.exists(ruta_trabajo):
-        with open(ruta_trabajo, "rb") as f:
-            c2.download_button("📥 Descargar Hoja de Trabajo", f, "hoja_trabajo_estandar.docx")
-
-    st.divider()
-
-    # 2. ZONA DE REVISIÓN
-    st.subheader("2. Revisión de Tarea")
-    st.write("Copia y pega aquí el contenido que el alumno escribió en su hoja para evaluarlo.")
-    
-    # Selector de tipo de tarea
-    tipo_tarea = st.radio("¿Qué estás revisando?", ["Línea Melódica", "Hoja de Trabajo / Texto"], horizontal=True)
-    
-    # Área de texto para pegar el contenido del alumno
-    contenido_alumno = st.text_area("Pegar contenido del alumno aquí:", height=200)
-    
-    if st.button("📝 REVISAR TAREA AHORA"):
-        if contenido_alumno:
-            with st.spinner("Analizando teológicamente y estructuralmente..."):
-                # Prompt específico para que la IA actúe como EXAMINADOR
-                prompt_revision = (
-                    f"ACTÚA COMO UN PROFESOR DE HERMENÉUTICA EXPERTO EN PREDICACIÓN EXPOSITIVA. "
-                    f"Tarea a revisar: {tipo_tarea}. "
-                    f"Contexto: El alumno está analizando el libro de {st.session_state.datos_usuario.get('libro_seleccionado', 'la Biblia')}. "
-                    f"Contenido del alumno: '{contenido_alumno}'. "
-                    "INSTRUCCIONES: Evalúa si el alumno ha identificado correctamente la idea central. "
-                    "Señala aciertos y errores. Sé constructivo pero riguroso teológicamente. "
-                    "Si es Línea Melódica, verifica si captó el flujo del pensamiento del autor."
-                )
-                stream_gemini_response(prompt_revision)
-        else:
-            st.warning("⚠️ Por favor pega el contenido del alumno para poder revisarlo.")
-
-    st.divider()
-    
-    # 3. BOTÓN PARA SALIR
-    if st.button("🔙 VOLVER AL AULA (Salir del Modo Maestro)"):
-        st.session_state.modo_maestro_view = False
-        st.rerun()
-
 # ==========================================
-# 7. CHAT IA
+# 7. CHAT IA (CEREBRO ALUMNO)
 # ==========================================
 def stream_gemini_response(texto_usuario):
     try:
@@ -392,8 +480,30 @@ def stream_gemini_response(texto_usuario):
         st.error(f"Error AI: {e}")
 
 def trigger_leccion_seleccionada(nombre_leccion):
-    nombre = st.session_state.datos_usuario['Nombre']
-    prompt = f"COMANDO INTERNO: El alumno {nombre} está en '{nombre_leccion}'. Salúdalo y expón el tema SIN hacer preguntas finales."
+    datos = st.session_state.datos_usuario
+    nombre = datos['Nombre']
+    instruccion_extra = ""
+    
+    if "4." in nombre_leccion:
+        genero = datos.get('Genero', 'General')
+        libro = datos.get('libro_seleccionado', 'la Biblia')
+        instruccion_extra = (
+            f"\n\nCONTEXTO CRÍTICO: El alumno eligió el género '{genero}' y está estudiando el libro de '{libro}'. "
+            f"Tu explicación de 'Introducción al género' debe enfocarse 100% en el género {genero}. "
+            f"Usa ejemplos específicos de {libro} para ilustrar los conceptos. "
+            "No expliques detalladamente los otros géneros, céntrate en el suyo."
+        )
+
+    if nombre_leccion.startswith(("1.", "2.", "3.")):
+        modo_instruccion = "Actúa en MODO EXPOSITOR: Entrega la información de forma continua, clara y sin hacer preguntas al final."
+    else:
+        modo_instruccion = "Actúa en MODO TUTOR SOCRÁTICO: Explica el concepto adaptado a su libro y termina con UNA pregunta reflexiva para verificar comprensión."
+
+    prompt = (
+        f"COMANDO INTERNO: El alumno {nombre} ha entrado a la lección '{nombre_leccion}'. "
+        f"{instruccion_extra} "
+        f"\n\n{modo_instruccion} Salúdalo y comienza."
+    )
     stream_gemini_response(prompt)
 
 def trigger_maestro_accion():
@@ -442,7 +552,6 @@ else:
     user = st.session_state.datos_usuario
     nivel_real_idx = int(user['Progreso'])
     
-    # Blindaje de índice
     if nivel_real_idx >= len(TEMARIO_OFICIAL): nivel_real_idx = len(TEMARIO_OFICIAL) - 1
     leccion_maxima = TEMARIO_OFICIAL[nivel_real_idx]
 
@@ -453,35 +562,26 @@ else:
         st.caption(f"Nivel: {nivel_real_idx + 1} / {len(TEMARIO_OFICIAL)}")
         st.divider()
         
-        # Si NO estamos en modo maestro, mostramos navegación normal
         if not st.session_state.modo_maestro_view:
             st.subheader("📍 Navegación")
             lecciones_dispo = TEMARIO_OFICIAL[:nivel_real_idx + 1]
-            
             if "leccion_actual_visual" not in st.session_state:
                 st.session_state.leccion_actual_visual = leccion_maxima
-            
             try:
                 idx_visual = lecciones_dispo.index(st.session_state.leccion_actual_visual)
             except ValueError:
                 idx_visual = len(lecciones_dispo) - 1
-                
-            leccion_actual = st.selectbox(
-                "Ir a lección:", lecciones_dispo, index=idx_visual, key="nav_selector"
-            )
+            leccion_actual = st.selectbox("Ir a lección:", lecciones_dispo, index=idx_visual, key="nav_selector")
             
             if leccion_actual != st.session_state.leccion_actual_visual:
                 st.session_state.leccion_actual_visual = leccion_actual
                 st.session_state.messages = []
                 st.rerun()
-                
             st.progress((nivel_real_idx + 1) / len(TEMARIO_OFICIAL))
             st.divider()
-            
             st.subheader("📂 Tareas")
             up = st.file_uploader("Subir archivo", key="tarea_up")
             if up: st.success("Enviado.")
-            
             st.divider()
             c1, c2 = st.columns(2)
             if c1.button("Limpiar"):
@@ -491,7 +591,6 @@ else:
                 st.session_state.clear()
                 st.rerun()
 
-        # --- BOTÓN MAESTRO (LÓGICA ACTUALIZADA) ---
         st.divider()
         if not st.session_state.maestro_unlocked:
             with st.expander("🔐 Maestro"):
@@ -499,30 +598,19 @@ else:
                     st.session_state.maestro_unlocked = True
                     st.rerun()
         else:
-            # Si ya está desbloqueado, mostramos el botón de entrar/salir
             if st.session_state.modo_maestro_view:
                 st.info("🎓 MODO MAESTRO ACTIVO")
             else:
                 if st.button("👨‍🏫 ABRIR PANEL MAESTRO"): 
                     st.session_state.modo_maestro_view = True
-                    st.session_state.messages = [] # Limpiamos chat visualmente
+                    st.session_state.messages = [] 
                     st.rerun()
 
     # --- AREA PRINCIPAL (DECISIÓN DE VISTA) ---
-    
-    # CASO 1: VISTA DE MAESTRO (Pantalla Limpia + Herramientas)
     if st.session_state.modo_maestro_view:
         contenido_vista_maestro()
-        
-        # Mostramos la respuesta de la IA (La corrección) aquí abajo
-        for m in st.session_state.messages:
-            with st.chat_message(m["role"], avatar="👨‍🏫" if m["role"]=="user" else "🤖"):
-                st.markdown(m["content"])
-
-    # CASO 2: VISTA DE ALUMNO (Clase Normal)
     else:
         st.title(f"📖 {leccion_actual}")
-        
         mostrar_video_leccion(leccion_actual)
         
         for m in st.session_state.messages:
@@ -540,12 +628,10 @@ else:
             with st.chat_message("user"): st.markdown(p)
             with st.chat_message("model"): stream_gemini_response(p)
 
-        # --- BOTÓN AVANZAR ---
         if leccion_actual == leccion_maxima:
             st.markdown("---")
             c1, c2, c3 = st.columns([1,2,1])
             bloqueado = (leccion_actual == "3. Indicaciones" and "libro_seleccionado" not in user)
-            
             if bloqueado:
                 c2.warning("⚠️ Debes seleccionar un libro arriba para avanzar.")
             else:
